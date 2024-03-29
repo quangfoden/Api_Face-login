@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="index.css">
+    <link href='https://fonts.googleapis.com/css?family=Fira Sans' rel='stylesheet'>
+    <style>
+        /* Thêm CSS cho các phần tử HTML */
+        body {
+            font-family: 'Fira Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        nav {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('bg.webp');
+            background-size: cover;
+        }
+        .loginbox {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .loginbox h2 {
+            text-align: center;
+        }
+        #inp {
+            text-align: center;
+        }
+        #inp input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #camera {
+            width: 100%;
+            text-align: center;
+        }
+        .captureBtn {
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="register.html">REGISTER</a>
+    </nav>
+    <div class="main">
+        <div class="loginbox">
+            <h2>LOGIN</h2>
+            <form action="http://127.0.0.1:5000/login" method="post">
+                <div id="inp">
+                    <input type="text" name="email" placeholder="USER ID / EMAIL">
+                    <input type="password" name="password" placeholder="PASSWORD">
+                    <button type="button" onclick="login()">Scan Face</button>
+                    <a href="forgot">FORGOT PASSWORD</a>
+                </div>
+                <div id="camera"></div>
+                <input type="text" id="imgData" name="imgdata" style="display: none;">
+            </form>
+        </div>
+    </div>
+   
+    <script>
+        const login = () => {
+            const old = document.getElementById("inp");
+            old.style.display = "none";
+    
+            const form = document.getElementById("camera");
+    
+            form.innerHTML = `<div style="width:100%;height: 300px;display:flex;align-items:center;flex-direction:column">
+                <video id="video" autoplay class="video"></video>
+                <canvas id="canvas" style="overflow:auto;display:none"></canvas>
+                <button style="margin-top: 10px;margin-bottom:10px;" class="captureBtn" onclick="capture()">Login Now</button>
+            </div>`;
+            
+            var video = document.querySelector("video");
+    
+            if (navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function(err0r) {
+                    console.log("Something went wrong!");
+                });
+            }
+        };
+    
+        async function capture() {       
+            var canvas = document.getElementById('canvas');     
+            var video = document.getElementById('video');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);  
+            const img = document.getElementById("imgData");
+            img.value = canvas.toDataURL();
+    
+            const formData = new FormData();
+            formData.append('imgdata', img.value);
+            formData.append('email', document.querySelector('input[name="email"]').value);
+            formData.append('password', document.querySelector('input[name="password"]').value);
+    
+            try {
+                const response = await fetch('http://127.0.0.1:5000/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                console.log(data);
+                // Xử lý dữ liệu phản hồi tại đây
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+    
+</body>
+</html>

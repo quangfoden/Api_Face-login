@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <a href="login.html">Login</a>
+    <h2>Register</h2>
+    <form id="registerForm" enctype="multipart/form-data">
+        <label for="fName">First Name:</label><br>
+        <input type="text" id="fName" name="fName"><br>
+        <label for="lName">Last Name:</label><br>
+        <input type="text" id="lName" name="lName"><br>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email"><br>
+        <label for="registerNo">Register Number:</label><br>
+        <input type="text" id="registerNo" name="registerNo"><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br>
+        <label for="confirmPassword">Confirm Password:</label><br>
+        <input type="password" id="confirmPassword" name="confirmPassword"><br>
+        <label for="file">Upload Image:</label><br>
+        <input type="file" id="file" name="file"><br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById("registerForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            var form = event.target;
+            var formData = new FormData(form);
+            
+            fetch("http://127.0.0.1:5000/create", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                var responseDiv = document.getElementById("response");
+                if (data.status === "success") {
+                    responseDiv.innerHTML = "<p>Registration Successful!</p>";
+                    responseDiv.innerHTML += "<p>User ID: " + data.user.id + "</p>";
+                    responseDiv.innerHTML += "<p>First Name: " + data.user.fname + "</p>";
+                    responseDiv.innerHTML += "<p>Last Name: " + data.user.lname + "</p>";
+                    responseDiv.innerHTML += "<p>Email: " + data.user.email + "</p>";
+                    responseDiv.innerHTML += "<p>Register Number: " + data.user.registerNo + "</p>";
+                } else {
+                    responseDiv.innerHTML = "<p>Registration Failed! Please try again.</p>";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    </script>
+</body>
+</html>
